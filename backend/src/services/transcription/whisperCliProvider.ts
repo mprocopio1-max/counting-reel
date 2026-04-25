@@ -1,4 +1,4 @@
-import { execFile } from "child_process";
+import { exec } from "child_process";
 import fs from "fs";
 import path from "path";
 import { env } from "../../config/env";
@@ -11,33 +11,21 @@ export class WhisperCliProvider implements TranscriptionProvider {
     const outputBaseName = path.basename(audioPath, path.extname(audioPath));
 
     await new Promise<void>((resolve, reject) => {
-      execFile(
-        env.WHISPER_CLI_PATH,
-        [
-          audioPath,
-          "--model",
-          env.WHISPER_MODEL,
-          "--output_format",
-          "txt",
-          "--output_dir",
-          outputDir,
-          "--fp16",
-          "False"
-        ],
-        (error) => {
-          if (error) {
-            reject(
-              new HttpError(
-                500,
-                `Whisper CLI transcription failed. Ensure Whisper is installed and configured. Details: ${error.message}`
-              )
-            );
-            return;
-          }
+      const command = `${env.WHISPER_CLI_PATH} "${audioPath}" --model ${env.WHISPER_MODEL} --output_format txt --output_dir "${outputDir}" --fp16 False`;
 
-          resolve();
+      exec(command, (error) => {
+        if (error) {
+          reject(
+            new HttpError(
+              500,
+              `Whisper CLI transcription failed. Ensure Whisper is installed and configured. Details: ${error.message}`
+            )
+          );
+          return;
         }
-      );
+
+        resolve();
+      });
     });
 
     const transcriptPath = path.join(outputDir, `${outputBaseName}.txt`);
