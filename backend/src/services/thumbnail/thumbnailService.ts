@@ -2,6 +2,7 @@ import crypto from "crypto";
 import path from "path";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegStatic from "ffmpeg-static";
+import ffprobeBinary from "ffprobe-static";
 import { env } from "../../config/env";
 import { HttpError } from "../../utils/httpError";
 
@@ -9,6 +10,10 @@ const ffmpegPath = env.FFMPEG_PATH?.trim() || ffmpegStatic;
 
 if (ffmpegPath) {
   ffmpeg.setFfmpegPath(ffmpegPath);
+}
+
+if (ffprobeBinary.path) {
+  ffmpeg.setFfprobePath(ffprobeBinary.path);
 }
 
 class ThumbnailService {
