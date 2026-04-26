@@ -30,3 +30,22 @@ export const analyzeReel = async (url: string): Promise<AnalyzeSuccessResponse> 
 
   return payload as AnalyzeSuccessResponse;
 };
+
+export const analyzeUploadedVideo = async (file: File): Promise<AnalyzeSuccessResponse> => {
+  const formData = new FormData();
+  formData.append("video", file);
+
+  const response = await fetch(`${resolveApiBaseUrl()}/api/analyze-upload`, {
+    method: "POST",
+    body: formData
+  });
+
+  const payload = (await response.json()) as AnalyzeSuccessResponse | AnalyzeErrorResponse;
+
+  if (!response.ok || !payload.success) {
+    const message = (payload as AnalyzeErrorResponse).error || "Upload analysis failed.";
+    throw new Error(message);
+  }
+
+  return payload as AnalyzeSuccessResponse;
+};

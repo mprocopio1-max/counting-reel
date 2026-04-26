@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { analyzeReel, resolvePublicAssetUrl } from "./api/analyzeApi";
+import { analyzeReel, analyzeUploadedVideo, resolvePublicAssetUrl } from "./api/analyzeApi";
 import { ThumbnailGallery } from "./components/ThumbnailGallery";
 import { TopWordsTable } from "./components/TopWordsTable";
 import { TranscriptCard } from "./components/TranscriptCard";
+import { UploadForm } from "./components/UploadForm";
 import { UrlForm } from "./components/UrlForm";
 import { AnalyzeData } from "./types/api";
 
@@ -41,6 +42,22 @@ function App(): JSX.Element {
     }
   };
 
+  const handleAnalyzeUpload = async (file: File): Promise<void> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await analyzeUploadedVideo(file);
+      setResult(response.data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unexpected error";
+      setError(message);
+      setResult(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="page-shell">
       <header className="hero">
@@ -54,6 +71,7 @@ function App(): JSX.Element {
       <main className="main-layout">
         <section className="panel form-panel">
           <UrlForm url={url} onUrlChange={setUrl} onSubmit={handleAnalyze} loading={loading} />
+          <UploadForm onSubmitFile={handleAnalyzeUpload} loading={loading} />
           {loading ? <p className="loading-text">Analysis in progress, please wait...</p> : null}
           {error ? <p className="error-text">{error}</p> : null}
         </section>

@@ -12,6 +12,22 @@ const analyzeRequestSchema = z.object({
   url: z.string().url()
 });
 
+const runAnalysisForVideoPath = async (videoPath: string): Promise<AnalyzeResponse> => {
+  const audioPath = await audioService.extractAudio(videoPath);
+  const transcript = await transcriptionService.transcribe(audioPath);
+  const topWords = textAnalysisService.getTopWords(transcript, 20);
+  const thumbnails = await thumbnailService.extractThumbnails(videoPath, 4);
+
+  return {
+    success: true,
+    data: {
+      transcript,
+      topWords,
+      thumbnails
+    }
+  };
+};
+
 export const analyzeController = async (
   req: Request,
   res: Response,
@@ -26,20 +42,27 @@ export const analyzeController = async (
 
     const { url } = parsed.data;
     const media = await reelService.resolveMediaFromUrl(url);
-    const audioPath = await audioService.extractAudio(media.localVideoPath);
-    const transcript = await transcriptionService.transcribe(audioPath);
-    const topWords = textAnalysisService.getTopWords(transcript, 20);
-    const thumbnails = await thumbnailService.extractThumbnails(media.localVideoPath, 4);
+    const response = await runAnalysisForVideoPath(media.localVideoPath);
 
-    const response: AnalyzeResponse = {
-      success: true,
-      data: {
-        transcript,
-        topWords,
-        thumbnails
-      }
-    };
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+};
 
+export const analyzeUploadController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const uploadedVideo = req.file;
+
+    if (!uploadedVideo) {
+      throw new HttpError(400, "Missing file. Attach a video in the 'video' field.");
+    }
+
+    const response = await runAnalysisForVideoPath(uploadedVideo.path);
     res.status(200).json(response);
   } catch (error) {
     next(error);
