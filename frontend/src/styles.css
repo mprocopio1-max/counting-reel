@@ -245,6 +245,34 @@ th {
   gap: 0.8rem;
 }
 
+.thumb-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.75rem;
+}
+
+.thumb-actions h2 {
+  margin: 0;
+}
+
+.download-button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2f7f64, #256d56);
+}
+
+.download-button:disabled {
+  opacity: 0.8;
+  cursor: wait;
+}
+
 .thumb-card {
   margin: 0;
   border: 1px solid var(--border);
