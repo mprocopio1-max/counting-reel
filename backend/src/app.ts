@@ -20,7 +20,22 @@ export const app = express();
 
 app.use(
   cors({
-    origin: env.frontendOrigin
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      const isConfiguredOrigin = origin === env.frontendOrigin;
+      const isLocalhostDevOrigin = /^http:\/\/localhost:\d+$/.test(origin);
+
+      if (isConfiguredOrigin || isLocalhostDevOrigin) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    }
   })
 );
 app.use(express.json({ limit: "1mb" }));
