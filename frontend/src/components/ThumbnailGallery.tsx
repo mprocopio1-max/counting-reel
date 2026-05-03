@@ -38,10 +38,12 @@ export function ThumbnailGallery({ images }: ThumbnailGalleryProps): JSX.Element
         const blob = await response.blob();
         const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        const fileNameFromUrl = src.split("/").pop();
+        const fileNameFromUrl = src.split("/").pop() || "";
+        const extMatch = fileNameFromUrl.match(/\.(\w+)$/);
+        const ext = extMatch ? `.${extMatch[1]}` : ".jpg";
 
         link.href = blobUrl;
-        link.download = fileNameFromUrl || `frame-${index + 1}.jpg`;
+        link.download = `${index + 1}${ext}`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
