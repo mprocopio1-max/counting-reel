@@ -7,6 +7,19 @@ interface ThumbnailGalleryProps {
 export function ThumbnailGallery({ images }: ThumbnailGalleryProps): JSX.Element {
   const [downloading, setDownloading] = useState(false);
 
+  const getCardLabel = (src: string, index: number): string => {
+    if (src.includes("-cover")) {
+      return "Cover";
+    }
+
+    const frameMatch = src.match(/_([0-9]+)\.jpg$/i);
+    if (frameMatch) {
+      return `Frame ${frameMatch[1]}`;
+    }
+
+    return `Frame ${index + 1}`;
+  };
+
   const handleDownloadFrames = async (): Promise<void> => {
     if (images.length === 0 || downloading) {
       return;
@@ -53,7 +66,7 @@ export function ThumbnailGallery({ images }: ThumbnailGalleryProps): JSX.Element
             onClick={handleDownloadFrames}
             disabled={downloading}
           >
-            {downloading ? "Downloading..." : "Download Frames"}
+            {downloading ? "Downloading..." : "Download Images"}
           </button>
         ) : null}
       </div>
@@ -63,8 +76,8 @@ export function ThumbnailGallery({ images }: ThumbnailGalleryProps): JSX.Element
         <div className="thumb-grid">
           {images.map((src, index) => (
             <figure key={`${src}-${index}`} className="thumb-card">
-              <img src={src} alt={`Reel frame ${index + 1}`} loading="lazy" />
-              <figcaption>Frame {index + 1}</figcaption>
+              <img src={src} alt={`Reel image ${index + 1}`} loading="lazy" />
+              <figcaption>{getCardLabel(src, index)}</figcaption>
             </figure>
           ))}
         </div>
